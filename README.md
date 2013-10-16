@@ -21,7 +21,7 @@ This is the code and data supporting [my presentation](http://velocityconf.com/v
 
 1. Install `pygerduty` with `pip install pygerduty`.
 2. Create a read-only API token in your PagerDuty account.
-3. Run the following script
+3. Run the following script (called `pdcsv.py` for instance)
 
 ```python
 import pygerduty
@@ -56,4 +56,17 @@ for i in range(len(incidents)):
         incident.id,
         desc,
         incident.service.name))
+```
+
+## Load the data into PostgreSQL
+
+```bash
+python pdcsv.py my-subdomain my-api-token > alerts.csv
+psql < setup-db.sql
+```
+
+Then run `psql`:
+
+```sql
+\copy alerts from 'alerts.csv' format csv;
 ```
