@@ -26,7 +26,13 @@ This is the code and data supporting [my presentation](http://velocityconf.com/v
 ```python
 import pygerduty
 from datetime import datetime
-pd = pygerduty.PagerDuty(subdomain='XXX', api_token='YYY')
+import sys 
+
+if len(sys.argv) < 3:
+    sys.stderr.write("Usage: csvpd.py subdomain api_token\n")
+    sys.exit(2)
+
+pd = pygerduty.PagerDuty(subdomain=sys.argv[1], api_token=sys.argv[2])
 incidents = pd.incidents.list()
 
 # postgresql schema
@@ -38,11 +44,16 @@ incidents = pd.incidents.list()
 # name text not null, -- alert name
 # service text not null -- service name
 
-print(
 for i in range(len(incidents)):
     incident = incidents[i]
-    print("%d,%s,PagerDuty,%s,%s,%s".format(i+1,
-                                            incident.created_on,
-                                            incident.trigger_summary_data.description,
-                                            incident.service.name))
+    try:
+        desc = incident.trigger_summary_data.description.replace(',', ''),
+    except:
+        desc = ""
+    print("{0},{1},PagerDuty,{2},{3},{4},{5}".format(i+1,
+        incident.created_on,
+        incident.status,
+        incident.id,
+        desc,
+        incident.service.name))
 ```
